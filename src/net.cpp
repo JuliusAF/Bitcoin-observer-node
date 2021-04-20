@@ -1141,7 +1141,7 @@ void CConnman::CreateNodeFromAcceptedSocket(SOCKET hSocket,
 
     ServiceFlags nodeServices = nLocalServices;
     if (NetPermissions::HasFlag(permissionFlags, PF_BLOOMFILTER)) {
-        LogPrint(BCLog::NET, "CUSTOM: chose to dodge bloom filters\n";
+        LogPrint(BCLog::NET, "CUSTOM: chose to dodge bloom filters\n");
         //nodeServices = static_cast<ServiceFlags>(nodeServices | NODE_BLOOM);
     }
 
