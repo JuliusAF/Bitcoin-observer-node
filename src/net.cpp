@@ -1141,7 +1141,8 @@ void CConnman::CreateNodeFromAcceptedSocket(SOCKET hSocket,
 
     ServiceFlags nodeServices = nLocalServices;
     if (NetPermissions::HasFlag(permissionFlags, PF_BLOOMFILTER)) {
-        nodeServices = static_cast<ServiceFlags>(nodeServices | NODE_BLOOM);
+        LogPrint(BCLog::NET, "CUSTOM: chose to dodge bloom filters\n";
+        //nodeServices = static_cast<ServiceFlags>(nodeServices | NODE_BLOOM);
     }
 
     const bool inbound_onion = std::find(m_onion_binds.begin(), m_onion_binds.end(), addr_bind) != m_onion_binds.end();

@@ -1113,6 +1113,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     // Option to startup with mocktime set (used for regression testing):
     SetMockTime(args.GetArg("-mocktime", 0)); // SetMockTime(0) is a no-op
 
+    // note of where these bloom filter settings are
     if (args.GetBoolArg("-peerbloomfilters", DEFAULT_PEERBLOOMFILTERS))
         nLocalServices = ServiceFlags(nLocalServices | NODE_BLOOM);
 

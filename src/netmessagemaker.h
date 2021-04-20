@@ -17,6 +17,7 @@ public:
     template <typename... Args>
     CSerializedNetMsg Make(int nFlags, std::string msg_type, Args&&... args) const
     {
+        LogPrint(BCLog::NET, "CUSTOM: Message maker asked to make: %s type message\n", msg_type);
         CSerializedNetMsg msg;
         msg.m_type = std::move(msg_type);
         CVectorWriter{ SER_NETWORK, nFlags | nVersion, msg.data, 0, std::forward<Args>(args)... };
