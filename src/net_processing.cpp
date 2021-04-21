@@ -2720,7 +2720,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         vRecv >> vInv;
         if (vInv.size() > MAX_INV_SZ)
         {
-            LogPrint(BCLog::NET, "CUSTOM: inventory message too large from: %d\n", pfrom.GetId());
+            LogPrint(BCLog::NET, "CUSTOM: inventory message too large from: %d with up=%s\n", pfrom.GetId(), pfrom.addr.ToStringIPPort());
             Misbehaving(pfrom.GetId(), 20, strprintf("inv message size = %u", vInv.size()));
             return;
         }
@@ -2753,7 +2753,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
             if (inv.IsMsgBlk()) {
                 const bool fAlreadyHave = AlreadyHaveBlock(inv.hash);
-                LogPrint(BCLog::NET, "got inv: %s  %s peer=%d\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId());
+                LogPrint(BCLog::NET, "got inv: %s  %s peer=%d with ip=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
 
                 UpdateBlockAvailability(pfrom.GetId(), inv.hash);
                 if (!fAlreadyHave && !fImporting && !fReindex && !mapBlocksInFlight.count(inv.hash)) {
@@ -2767,7 +2767,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             } else if (inv.IsGenTxMsg()) {
                 const GenTxid gtxid = ToGenTxid(inv);
                 const bool fAlreadyHave = AlreadyHaveTx(gtxid);
-                LogPrint(BCLog::NET, "got inv: %s  %s peer=%d\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId());
+                LogPrint(BCLog::NET, "got inv: %s  %s peer=%d with ip=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
 
                 pfrom.AddKnownTx(inv.hash);
                 if (fBlocksOnly) {
@@ -3222,8 +3222,8 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         CBlockHeaderAndShortTxIDs cmpctblock;
         vRecv >> cmpctblock;
 
-        LogPrint(BCLog::NET, "CUSTOM: got compact block message from peer=%d, with head hash=%s and prevBlockHash=%s\n",
-            pfrom.GetId(), cmpctblock.header.GetHash().ToString(), cmpctblock.header.hashPrevBlock.ToString());
+        LogPrint(BCLog::NET, "CUSTOM: got compact block message from peer=%d with ip=%s with head hash=%s and prevBlockHash=%s\n",
+            pfrom.GetId(), pfrom.addr.ToStringIPPort(), cmpctblock.header.GetHash().ToString(), cmpctblock.header.hashPrevBlock.ToString());
 
         bool received_new_header = false;
 
@@ -3524,7 +3524,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         headers.resize(nCount);
         for (unsigned int n = 0; n < nCount; n++) {
             vRecv >> headers[n];
-            LogPrint(BCLog::NET, "CUSTOM: Got header from peer %d with hash=%s\n", pfrom.GetId(), headers[n].GetHash().ToString());
+            LogPrint(BCLog::NET, "CUSTOM: got header from peer %d with ip=%s with hash=%s\n", pfrom.GetId(), pfrom.addr.ToStringIPPort(),headers[n].GetHash().ToString());
             ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
         }
 
@@ -4667,7 +4667,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
             std::vector<const CBlockIndex*> vToDownload;
             NodeId staller = -1;
             FindNextBlocksToDownload(pto->GetId(), MAX_BLOCKS_IN_TRANSIT_PER_PEER - state.nBlocksInFlight, vToDownload, staller);
-            LogPrint(BCLog::NET, "CUSTOM: LOOKING TO GETDATA UNANNOUNCED FROM peer=%d\n", pto->GetId());
             for (const CBlockIndex *pindex : vToDownload) {
                 uint32_t nFetchFlags = GetFetchFlags(*pto);
                 vGetData.push_back(CInv(MSG_BLOCK | nFetchFlags, pindex->GetBlockHash()));

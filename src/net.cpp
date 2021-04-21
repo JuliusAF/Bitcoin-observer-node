@@ -1073,7 +1073,7 @@ void CConnman::CreateNodeFromAcceptedSocket(SOCKET hSocket,
                                             const CAddress& addr)
 {
     int nInbound = 0;
-    int nMaxInbound = nMaxConnections - m_max_outbound;
+    int nMaxInbound = (nMaxConnections - 1) - (m_max_outbound + 1);
 
     AddWhitelistPermissionFlags(permissionFlags, addr);
     if (NetPermissions::HasFlag(permissionFlags, NetPermissionFlags::PF_ISIMPLICIT)) {

@@ -969,6 +969,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     nFD = RaiseFileDescriptorLimit(nMaxConnections + MIN_CORE_FILEDESCRIPTORS + MAX_ADDNODE_CONNECTIONS + nBind + NUM_FDS_MESSAGE_CAPTURE);
 
 #ifdef USE_POLL
+InitWarning(strprintf( ("Using poll wtf fd_max=%d"), nFD ));
     int fd_max = nFD;
 #else
     int fd_max = FD_SETSIZE;
