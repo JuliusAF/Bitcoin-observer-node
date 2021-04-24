@@ -2753,7 +2753,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
             if (inv.IsMsgBlk()) {
                 const bool fAlreadyHave = AlreadyHaveBlock(inv.hash);
-                LogPrint(BCLog::NET, "CUSTOM: got bhash=%s  %s peer=%d with ipaddr=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
+                LogPrint(BCLog::NET, "CUSTOM: got inventory bhash=%s  %s peer=%d with ipaddr=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
 
                 UpdateBlockAvailability(pfrom.GetId(), inv.hash);
                 if (!fAlreadyHave && !fImporting && !fReindex && !mapBlocksInFlight.count(inv.hash)) {
