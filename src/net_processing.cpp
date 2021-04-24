@@ -2753,7 +2753,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
             if (inv.IsMsgBlk()) {
                 const bool fAlreadyHave = AlreadyHaveBlock(inv.hash);
-                LogPrint(BCLog::NET, "got inv: %s  %s peer=%d with ip=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
+                LogPrint(BCLog::NET, "CUSTOM: got inv=%s  %s peer=%d with ip=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
 
                 UpdateBlockAvailability(pfrom.GetId(), inv.hash);
                 if (!fAlreadyHave && !fImporting && !fReindex && !mapBlocksInFlight.count(inv.hash)) {
@@ -3222,8 +3222,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         CBlockHeaderAndShortTxIDs cmpctblock;
         vRecv >> cmpctblock;
 
-        LogPrint(BCLog::NET, "CUSTOM: got compact block message from peer=%d with ip=%s with head hash=%s and prevBlockHash=%s\n",
-            pfrom.GetId(), pfrom.addr.ToStringIPPort(), cmpctblock.header.GetHash().ToString(), cmpctblock.header.hashPrevBlock.ToString());
+        LogPrint(BCLog::NET, "CUSTOM: got compact block message from peer=%d with ip=%s with hash=%s and prevhash=%s and timestamp=%u\n",
+            pfrom.GetId(), pfrom.addr.ToStringIPPort(), cmpctblock.header.GetHash().ToString(),
+            cmpctblock.header.hashPrevBlock.ToString(), cmpctblock.header.nTime);
 
         bool received_new_header = false;
 
@@ -3524,7 +3525,8 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         headers.resize(nCount);
         for (unsigned int n = 0; n < nCount; n++) {
             vRecv >> headers[n];
-            LogPrint(BCLog::NET, "CUSTOM: got header from peer %d with ip=%s with hash=%s\n", pfrom.GetId(), pfrom.addr.ToStringIPPort(),headers[n].GetHash().ToString());
+            LogPrint(BCLog::NET, "CUSTOM: got header from peer=%d with ip=%s with hash=%s and prevhash=%s and timestamp=%u\n", pfrom.GetId(),
+                pfrom.addr.ToStringIPPort(),headers[n].GetHash().ToString(), headers[n].hashPrevBlock.ToString(), headers[n].nTime);
             ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
         }
 
