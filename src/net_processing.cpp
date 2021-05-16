@@ -4385,7 +4385,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                             }
                             else {
                                 CBlockHeaderAndShortTxIDs cmpctblock(*most_recent_block, state.fWantsCmpctWitness);
-                                LogPrint(BCLog::NET, "CUSTOM: not actually sending header to peer=%d\n", pto->GetId());
                                 //m_connman.PushMessage(pto, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, cmpctblock));
                             }
                             fGotBlockFromCache = true;
@@ -4396,7 +4395,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         bool ret = ReadBlockFromDisk(block, pBestIndex, consensusParams);
                         assert(ret);
                         CBlockHeaderAndShortTxIDs cmpctblock(block, state.fWantsCmpctWitness);
-                        LogPrint(BCLog::NET, "CUSTOM: not actually sending header to peer=%d\n", pto->GetId());
                         m_connman.PushMessage(pto, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, cmpctblock));
                     }
                     state.pindexBestHeaderSent = pBestIndex;
@@ -4410,7 +4408,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         LogPrint(BCLog::NET, "%s: sending header %s to peer=%d\n", __func__,
                                 vHeaders.front().GetHash().ToString(), pto->GetId());
                     }
-                    LogPrint(BCLog::NET, "CUSTOM: not actually sending header to peer=%d\n", pto->GetId());
                     //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::HEADERS, vHeaders));
                     state.pindexBestHeaderSent = pBestIndex;
                 } else
@@ -4456,7 +4453,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
             for (const uint256& hash : peer->m_blocks_for_inv_relay) {
                 vInv.push_back(CInv(MSG_BLOCK, hash));
                 if (vInv.size() == MAX_INV_SZ) {
-                    LogPrint(BCLog::NET, "CUSTOM: not actually sending inventory to peer=%d\n", pto->GetId());
                     //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                     vInv.clear();
                 }
@@ -4505,7 +4501,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         // Responses to MEMPOOL requests bypass the m_recently_announced_invs filter.
                         vInv.push_back(inv);
                         if (vInv.size() == MAX_INV_SZ) {
-                            LogPrint(BCLog::NET, "CUSTOM: not actually sending inventory to peer=%d\n", pto->GetId());
                             //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                             vInv.clear();
                         }
@@ -4578,7 +4573,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                             }
                         }
                         if (vInv.size() == MAX_INV_SZ) {
-                            LogPrint(BCLog::NET, "CUSTOM: not actually sending inventory to peer=%d\n", pto->GetId());
                             //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                             vInv.clear();
                         }

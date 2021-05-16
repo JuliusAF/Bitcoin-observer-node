@@ -498,7 +498,7 @@ void CNode::CloseSocketDisconnect()
     LOCK(cs_hSocket);
     if (hSocket != INVALID_SOCKET)
     {
-        LogPrint(BCLog::NET, "disconnecting peer=%d\n", id);
+        LogPrint(BCLog::NET, "disconnecting ip=%s peer=%d\n", addr.ToStringIPPort(), id);
         CloseSocket(hSocket);
     }
 }
@@ -1033,7 +1033,8 @@ bool CConnman::AttemptToEvictConnection()
     LOCK(cs_vNodes);
     for (CNode* pnode : vNodes) {
         if (pnode->GetId() == *node_id_to_evict) {
-            LogPrint(BCLog::NET, "selected %s connection for eviction peer=%d; disconnecting\n", pnode->ConnectionTypeAsString(), pnode->GetId());
+            LogPrint(BCLog::NET, "selected %s connection for eviction ip=%s peer=%d; disconnecting\n", pnode->ConnectionTypeAsString(),
+                    pnode->addr.ToStringIPPort(), pnode->GetId());
             pnode->fDisconnect = true;
             return true;
         }
@@ -2778,7 +2779,8 @@ bool CConnman::DisconnectNode(const std::string& strNode)
 {
     LOCK(cs_vNodes);
     if (CNode* pnode = FindNode(strNode)) {
-        LogPrint(BCLog::NET, "disconnect by address%s matched peer=%d; disconnecting\n", (fLogIPs ? strprintf("=%s", strNode) : ""), pnode->GetId());
+        LogPrint(BCLog::NET, "disconnect by address%s matched ip=%s peer=%d; disconnecting\n", (fLogIPs ? strprintf("=%s", strNode) : ""),
+                pnode->addr.ToStringIPPort(), pnode->GetId());
         pnode->fDisconnect = true;
         return true;
     }
@@ -2791,7 +2793,8 @@ bool CConnman::DisconnectNode(const CSubNet& subnet)
     LOCK(cs_vNodes);
     for (CNode* pnode : vNodes) {
         if (subnet.Match(pnode->addr)) {
-            LogPrint(BCLog::NET, "disconnect by subnet%s matched peer=%d; disconnecting\n", (fLogIPs ? strprintf("=%s", subnet.ToString()) : ""), pnode->GetId());
+            LogPrint(BCLog::NET, "disconnect by subnet%s matched ip=%s peer=%d; disconnecting\n", (fLogIPs ? strprintf("=%s", subnet.ToString()) : ""),
+                    pnode->addr.ToStringIPPort(), pnode->GetId());
             pnode->fDisconnect = true;
             disconnected = true;
         }
@@ -2809,7 +2812,7 @@ bool CConnman::DisconnectNode(NodeId id)
     LOCK(cs_vNodes);
     for(CNode* pnode : vNodes) {
         if (id == pnode->GetId()) {
-            LogPrint(BCLog::NET, "disconnect by id peer=%d; disconnecting\n", pnode->GetId());
+            LogPrint(BCLog::NET, "disconnect by id ip=%s peer=%d; disconnecting\n", pnode->addr.ToStringIPPort(), pnode->GetId());
             pnode->fDisconnect = true;
             return true;
         }
@@ -2940,9 +2943,9 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, SOCKET hSocketIn, const
     mapRecvBytesPerMsgCmd[NET_MESSAGE_COMMAND_OTHER] = 0;
 
     if (fLogIPs) {
-        LogPrint(BCLog::NET, "Added connection to %s peer=%d\n", addrName, id);
+        LogPrint(BCLog::NET, "Added connection to ip=%s peer=%d\n", addrName, id);
     } else {
-        LogPrint(BCLog::NET, "Added connection peer=%d\n", id);
+        LogPrint(BCLog::NET, "Added connection to ip=%s peer=%d\n", addrName, id);
     }
 
     m_deserializer = std::make_unique<V1TransportDeserializer>(V1TransportDeserializer(Params(), GetId(), SER_NETWORK, INIT_PROTO_VERSION));
