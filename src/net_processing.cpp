@@ -2767,7 +2767,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             } else if (inv.IsGenTxMsg()) {
                 const GenTxid gtxid = ToGenTxid(inv);
                 const bool fAlreadyHave = AlreadyHaveTx(gtxid);
-                LogPrint(BCLog::NET, "got transaction: %s  %s peer=%d with ipaddr=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
+                LogPrint(BCLog::NET, "CUSTOM: got transaction bhash=%s  %s peer=%d with ipaddr=%s\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId(), pfrom.addr.ToStringIPPort());
 
                 pfrom.AddKnownTx(inv.hash);
                 if (fBlocksOnly) {
