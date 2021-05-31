@@ -762,14 +762,14 @@ void PeerManagerImpl::MaybeSetPeerAsAnnouncingHeaderAndIDs(NodeId nodeid)
                 // As per BIP152, we only get 3 of our peers to announce
                 // blocks using compact encodings.
                 m_connman.ForNode(lNodesAnnouncingHeaderAndIDs.front(), [this, nCMPCTBLOCKVersion](CNode* pnodeStop){
-                    m_connman.PushMessage(pnodeStop, CNetMsgMaker(pnodeStop->GetCommonVersion()).Make(NetMsgType::SENDCMPCT, /*fAnnounceUsingCMPCTBLOCK=*/false, nCMPCTBLOCKVersion));
+                  //  m_connman.PushMessage(pnodeStop, CNetMsgMaker(pnodeStop->GetCommonVersion()).Make(NetMsgType::SENDCMPCT, /*fAnnounceUsingCMPCTBLOCK=*/false, nCMPCTBLOCKVersion));
                     // save BIP152 bandwidth state: we select peer to be low-bandwidth
                     pnodeStop->m_bip152_highbandwidth_to = false;
                     return true;
                 });
                 lNodesAnnouncingHeaderAndIDs.pop_front();
             }
-            m_connman.PushMessage(pfrom, CNetMsgMaker(pfrom->GetCommonVersion()).Make(NetMsgType::SENDCMPCT, /*fAnnounceUsingCMPCTBLOCK=*/true, nCMPCTBLOCKVersion));
+            //m_connman.PushMessage(pfrom, CNetMsgMaker(pfrom->GetCommonVersion()).Make(NetMsgType::SENDCMPCT, /*fAnnounceUsingCMPCTBLOCK=*/true, nCMPCTBLOCKVersion));
             // save BIP152 bandwidth state: we select peer to be high-bandwidth
             pfrom->m_bip152_highbandwidth_to = true;
             lNodesAnnouncingHeaderAndIDs.push_back(pfrom->GetId());
@@ -1426,7 +1426,8 @@ void PeerManagerImpl::UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlock
             Peer& peer = *it.second;
             LOCK(peer.m_block_inv_mutex);
             for (const uint256& hash : reverse_iterate(vHashes)) {
-                peer.m_blocks_for_headers_relay.push_back(hash);
+                //peer.m_blocks_for_headers_relay.push_back(hash);
+                ;
             }
         }
     }
@@ -1648,7 +1649,7 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
         if (!ReadRawBlockFromDisk(block_data, pindex, m_chainparams.MessageStart())) {
             assert(!"cannot load block from disk");
         }
-        m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::BLOCK, MakeSpan(block_data)));
+        //m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::BLOCK, MakeSpan(block_data)));
         // Don't set pblock as we've sent the block
     } else {
         // Send block from disk
@@ -1709,7 +1710,7 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
             // wait for other stuff first.
             std::vector<CInv> vInv;
             vInv.push_back(CInv(MSG_BLOCK, m_chainman.ActiveChain().Tip()->GetBlockHash()));
-            m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::INV, vInv));
+            //m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::INV, vInv));
             peer.m_continuation_block.SetNull();
         }
     }
@@ -2978,7 +2979,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         // will re-announce the new block via headers (or compact blocks again)
         // in the SendMessages logic.
         nodestate->pindexBestHeaderSent = pindex ? pindex : m_chainman.ActiveChain().Tip();
-        m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::HEADERS, vHeaders));
+        //m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::HEADERS, vHeaders));
         return;
     }
 
@@ -4434,7 +4435,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
 
             // Add blocks
             for (const uint256& hash : peer->m_blocks_for_inv_relay) {
-                vInv.push_back(CInv(MSG_BLOCK, hash));
+                //vInv.push_back(CInv(MSG_BLOCK, hash));
                 if (vInv.size() == MAX_INV_SZ) {
                     //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                     vInv.clear();
@@ -4482,7 +4483,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         }
                         pto->m_tx_relay->filterInventoryKnown.insert(hash);
                         // Responses to MEMPOOL requests bypass the m_recently_announced_invs filter.
-                        vInv.push_back(inv);
+                        //vInv.push_back(inv);
                         if (vInv.size() == MAX_INV_SZ) {
                             //m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::INV, vInv));
                             vInv.clear();
@@ -4497,7 +4498,8 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                     std::vector<std::set<uint256>::iterator> vInvTx;
                     vInvTx.reserve(pto->m_tx_relay->setInventoryTxToSend.size());
                     for (std::set<uint256>::iterator it = pto->m_tx_relay->setInventoryTxToSend.begin(); it != pto->m_tx_relay->setInventoryTxToSend.end(); it++) {
-                        vInvTx.push_back(it);
+                        //vInvTx.push_back(it);
+                        ;
                     }
                     const CFeeRate filterrate{pto->m_tx_relay->minFeeFilter.load()};
                     // Topologically and fee-rate sort the inventory we send for privacy and priority reasons.
@@ -4535,7 +4537,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         if (pto->m_tx_relay->pfilter && !pto->m_tx_relay->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                         // Send
                         State(pto->GetId())->m_recently_announced_invs.insert(hash);
-                        vInv.push_back(inv);
+                        //vInv.push_back(inv);
                         nRelayedTransactions++;
                         {
                             // Expire old relay messages
